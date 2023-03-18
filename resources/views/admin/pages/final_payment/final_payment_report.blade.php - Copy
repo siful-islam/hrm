@@ -1,0 +1,409 @@
+@extends('admin.admin_master')
+@section('title', 'Final Payment')
+@section('main_content')
+<style>
+.content-header {
+    padding-top: 5px;
+}
+.content-header > .breadcrumb {
+	padding: 2px 7px;
+}
+.table-bordered {
+    border: 1px solid #757070;
+}
+.table > thead > tr > th {
+    border: 1px solid #757070;
+	font: 14px "Trebuchet MS","Lucida Grande",Verdana,sans-serif;
+	font-weight: bold;
+	text-align: left; 
+	padding: 2px 5px;
+}
+.table > tbody > tr > td {
+    border: 1px solid #757070;
+	padding: 4px 5px;
+	font: 12px "Trebuchet MS","Lucida Grande",Verdana,sans-serif;
+}
+h4 {
+	font: 16px "Trebuchet MS","Lucida Grande",Verdana,sans-serif;
+}
+</style>
+<?php
+function getBanglaDate($date){
+ $engArray = array(1,2,3,4,5,6,7,8,9,0);
+ $bangArray = array('১','২','৩','৪','৫','৬','৭','৮','৯','০');
+ 
+ $convert = str_replace($engArray, $bangArray, $date);
+ return $convert;
+}
+ 
+$date = date('d-m-Y',strtotime($form_date));
+?>
+<!-- Content Header (Page header) -->
+<section class="content-header">
+	<h1><small>{{$Heading}}</small></h1>
+	<ol class="breadcrumb">
+		<li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+		<li class="active">Final Payment</li>
+	</ol>
+</section>
+<section class="content">
+	<div class="row">
+        <div class="col-md-12"> 
+			<div class="box box-info" style="margin-bottom:10px;">
+				<div class="box-body">
+					<form class="form-inline report" action="{{URL::to('/final-payment')}}" method="post">
+						{{ csrf_field() }}
+						<div class="form-group">
+						  <label for="pwd">Employee ID:</label>
+						  <input type="text" class="form-control" name="emp_id" size="10" value="{{$emp_id}}" required>
+						</div>
+						<div class="form-group">
+						  <label for="pwd">Payment Type:</label>
+						  <select class="form-control" id="payment_type" name="payment_type" required>						
+							<option value="" >-Select-</option>
+							<option value="1" >Final Payment</option>
+							<option value="2" >PF Payment</option>
+							<option value="3" >Gratuity Payment</option>
+						  </select>	
+						</div>
+						<div class="form-group">
+						  <label for="pwd">Date:</label>
+						  <input type="text" id="form_date" class="form-control" name="form_date" size="10" value="{{$form_date}}" required>
+						</div>					
+						<button type="submit" class="btn btn-primary" >Search</button>
+						<div class="form-group">
+							<button type="button" onclick="javascript:printDiv('printme')" class="btn bg-navy"><i class="fa fa-print" aria-hidden="true"></i> Print</button>
+						</div>
+					</form>
+				</div>
+			</div>
+        </div>
+	</div>
+	@if (!empty($all_result))
+		@if ($payment_type ==1)
+	<div class="row">
+		<div id="printme">
+			<div class="col-md-10 col-md-offset-1">
+				<div style="text-align:center;">
+					<h4 style="margin-top:4px;">(নোট শীট)</h4>
+				</div>
+				<table class="table table-striped" style="margin-bottom: 10px;">
+					<tbody>
+						<tr>
+							<td style="text-align:right;border-style:none;">তারিখ : <?php echo getBanglaDate($date);?></td>
+						</tr>
+						<tr>
+							<td style="border-style:none;padding-top:10px;">
+								<p style="font-size: 14px;line-height: 1.6;">কর্মী/কর্মকর্তার নাম: {{$all_result->emp_name_eng}}, 
+								আইডি নং- {{getBanglaDate($all_result->emp_id)}}, পদবী: {{$all_result->designation_name}}, 
+								ব্রাঞ্চের নাম: {{$all_result->branch_name}}, সংস্থায় যোগদানের তারিখ:{{date('d-m-Y',strtotime($all_result->org_join_date))}}, 
+								স্থায়ীকরণের তারিখ:{{date('d-m-Y',strtotime($permanent_date))}},
+								 অব্যহতির তারিখ:{{date('d-m-Y',strtotime($all_result->re_effect_date))}},
+								এর চুড়ান্ত দেনা-পাওনার হিসাব নিম্নরূপ : 
+								</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<form class="form-horizontal" action="{{URL::to('/final-payment-insert')}}" method="post">
+				{{ csrf_field() }}
+				<div class="table-responsive">
+					<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th>ক) &nbsp;&nbsp;কর্মীর পাওনা :</th>
+								<th><center>টাকা</center></th>
+								<th>খ) &nbsp;&nbsp;কর্মীর দেনা :</th>
+								<th><center>টাকা</center></th>
+							<tr>
+						</thead>
+						<tbody>
+							<input type="hidden" name="emp_id" value="<?php echo $all_result->emp_id; ?>">
+							<input type="hidden" name="br_code" value="<?php echo $all_result->br_code; ?>">
+							<input type="hidden" name="designation_code" value="<?php echo $all_result->designation_code; ?>">
+							<tr>
+								<td>১. জামানত (কর্মী)</td>
+								<td><input type="text" name="staff_security" value="<?php echo empty($security_balance->se_balance) ? '' : $security_balance->se_balance;?>" class="form-control" size="2"></td>
+								<td>১. বাই-সাইকেল ঋণের কিস্তি (আসল)</td>
+								<td><input type="text" name="by_cycle_loan_deduc" value="<?php echo empty($bcl_loan_amt->total_bcl_amt) ? '' : round($bcl_loan_amt->total_bcl_amt);?>" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>২. মৃতজনিত ক্ষতিপুরন তহবিল</td>
+								<td><input type="text" name="death_cvag" value="<?php echo empty($death_cvg->closing_balance) ? '' : $death_cvg->closing_balance;?>" class="form-control" size="2"></td>
+								<td>২. মটর-সাইকেল ঋণের কিস্তি (আসল)</td>
+								<td><input type="text" name="motor_cycle_loan_deduc" value="<?php echo empty($mcl_loan_amt->total_mcl_amt) ? '' : round($mcl_loan_amt->total_mcl_amt);?>" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>৩. বেতন</td>
+								<td><input type="text" name="salary" value="<?php echo empty($salary->basic_salary) ? '' : $salary->basic_salary;?>" class="form-control" size="2"></td>
+								<td>৩. সাধারণ ঋণের কিস্তি (আসল)</td>
+								<td><input type="text" name="general_loan_deduc" value="<?php echo empty($gel_loan_amt->total_gel_amt) ? '' : round($gel_loan_amt->total_gel_amt);?>" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>৪. মোবাইল ও ইন্টারনেট বিল</td>
+								<td><input type="text" name="mobile_int_bill" value="500" class="form-control" size="2"></td>
+								<td>৪.  নোটিশ-পে</td>
+								<td><input type="text" name="notice_pay_deduc" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>৫. মটর-সাইকেলের তৈলের বিল</td>
+								<td><input type="text" name="mot_cycle_bill" class="form-control" size="2"></td>
+								<td>৫. বাড়ী ভাড়া কর্তন</td>
+								<td><input type="text" name="house_deduc" class="form-control" size="2"></td>
+							</tr>							
+							<tr>
+								<td>৬. অমিমাংসিত দাবী খাত (স্টাফ সভিংস ফান্ড)</td>
+								<td><input type="text" name="unsettled_staff_svg" value="" class="form-control" size="2"></td>
+								<td>৬. বেতন কর্তন</td>
+								<td><input type="text" name="salary_deduc" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>৭. অমিমাংসিত দাবী খাত </td>
+								<td><input type="text" name="unsettled_staff" value="" class="form-control" size="2"></td>
+								<td>৭. অতিরিক্ত /বিনা বেতনে ছুটি</td>
+								<td><input type="text" name="extra_leave_deduc" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>৮. কন্ট্রিবিউট্ররি এন্ড সার্ভিস বেনিফিট</td>
+								<td><input type="text" name="con_ser_benefit" value="" class="form-control" size="2"></td>
+								<td>৮. অমিমাংসিত দাবী খাত</td>
+								<td><input type="text" name="unsettled_deduc" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>৯. ছুটি জনিত ভাতা</td>
+								<td><input type="text" name="leave_allowance" value="" class="form-control" size="2"></td>
+								<td>৯. জরিমানা কর্তন</td>
+								<td><input type="text" name="fine_deduc" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>-</td>
+								<td>-</td>
+								<td>১০. কর্মী কর্তৃক আত্মসাৎজনিত খাত</td>
+								<td><input type="text" name="Embezlement_deduc" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>-</td>
+								<td>-</td>
+								<td>১১. ডায়রি এবং ক্যালেন্ডার বাবদ কর্তন</td>
+								<td><input type="text" name="diary_cal_deduc" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>-</td>
+								<td>-</td>
+								<td>১২. মোবাইল সিম বাবদ কর্তন</td>
+								<td><input type="text" name="mobile_sim_deduc" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td><center>মোট :</center></td>
+								<td><input type="text" name="total_pay" class="form-control" size="2"></td>
+								<td><center>মোট :</center></td>
+								<td><input type="text" name="total_due" class="form-control" size="2"></td>
+							</tr>
+						</tbody>	
+					</table>
+					<button type="submit" class="btn btn-primary pull-right" >Save</button>
+					<p>কর্মীর চুড়ান্ত পাওনা বাবদ = /- () টাকার হিসাবটি উপস্থাপন করা হল।</p>
+					<p style="padding-top:50px;">প্রস্তুতকারক</p>
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	@endif
+	@if ($payment_type ==2)
+	<div class="row">
+		<div id="printme">
+			<div class="col-md-10 col-md-offset-1">
+				<div style="text-align:center;">
+					<h4 style="margin-top:4px;">(নোট শীট)</h4>
+				</div>
+				<table class="table table-striped" style="margin-bottom: 10px;">
+					<tbody>
+						<tr>
+							<td style="text-align:right;border-style:none;">তারিখ : <?php echo getBanglaDate($date);?></td>
+						</tr>
+						<tr>
+							<td style="border-style:none;padding-top:10px;">
+								<p style="font-size: 14px;line-height: 1.6;">কর্মী/কর্মকর্তার নাম: {{$all_result->emp_name_eng}}, 
+								আইডি নং- {{getBanglaDate($all_result->emp_id)}}, পদবী: {{$all_result->designation_name}}, 
+								ব্রাঞ্চের নাম: {{$all_result->branch_name}}, সংস্থায় যোগদানের তারিখ:{{date('d-m-Y',strtotime($all_result->org_join_date))}}, 
+								স্থায়ীকরণের তারিখ:{{date('d-m-Y',strtotime($permanent_date))}},
+								 অব্যহতির তারিখ:{{date('d-m-Y',strtotime($all_result->re_effect_date))}}, 
+								এর ভবিষ্য তহবিলের হিসাব নিম্নরূপ : <br/> ( নীতিমালার ২৪.১ অনুচ্ছেদ অনুসারে )
+								</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<form class="form-horizontal" action="{{URL::to('/final-payment-pf')}}" method="post">
+				{{ csrf_field() }}
+				<div class="table-responsive">
+					<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th>ক) &nbsp;&nbsp;কর্মীর পাওনা :</th>
+								<th><center>টাকা</center></th>
+								<th>খ) &nbsp;&nbsp;কর্মীর দেনা ও অ-প্রাপ্য অংশ :</th>
+								<th><center>টাকা</center></th>
+							<tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><b>ভবিষ্য তহবিলের জমা :</b></td>
+								<td><center>-</center></td>
+								<td>-</td>
+								<td>-</td>
+							</tr>
+							<tr>
+								<td>নিজস্ব অংশ (১০০%)</td>
+								<td><input type="text" name="pf_own" value="<?php echo empty($pf->closing_balance_staff) ? '' : round($pf->closing_balance_staff);?>" class="form-control" size="2"></td>
+								<td>পি,এফ ঋণের কিস্তি </td>
+								<td><input type="text" name="pf_loan_deduc" value="<?php echo empty($pfl_loan_amt->total_pfl_amt) ? '' : round($pfl_loan_amt->total_pfl_amt);?>" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>সংস্থার অংশ (১০০%)</td>
+								<td><input type="text" name="pf_org" value="<?php echo empty($pf->closing_balance_org) ? '' : round($pf->closing_balance_org);?>" class="form-control" size="2"></td>
+								<td>অ-প্রাপ্য অংশ</td>
+								<td><input type="text" name="unrevealed_part" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>দাবিদারহীন হিসাব</td>
+								<td><input type="text" name="unreasonable_amt" class="form-control" size="2"></td>
+								<td>সিদীপের প্রাপ্য (কর্মীর দেনা)</td>
+								<td><input type="text" name="org_deserve_own" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td><center>মোট :</center></td>
+								<td><input type="text" name="total_pay" value="<?php echo empty($pf->closing_balance_staff) ? '' : round($pf->closing_balance_staff + $pf->closing_balance_org);?>" class="form-control" size="2"></td>
+								<td><center>মোট :</center></td>
+								<td><input type="text" name="total_due" class="form-control" size="2"></td>
+							</tr>
+						</tbody>	
+					</table>
+					<button type="submit" class="btn btn-primary pull-right" >Save</button>
+					<p>কর্মীর ভবিষ্য তহবিলের <b>দেনা-পাওনা</b> বাবদ = /- () টাকার হিসাবটি উপস্থাপন করা হল।</p>
+					<p style="padding-top:50px;">প্রস্তুতকারক</p>
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>	
+	@endif
+	@if ($payment_type ==3)
+	<div class="row">
+		<div id="printme">
+			<div class="col-md-10 col-md-offset-1">
+				<div style="text-align:center;">
+					<h4 style="margin-top:4px;">(নোট শীট)</h4>
+				</div>
+				<table class="table table-striped" style="margin-bottom: 10px;">
+					<tbody>
+						<tr>
+							<td style="text-align:right;border-style:none;">তারিখ : <?php echo getBanglaDate($date);?></td>
+						</tr>
+						<tr>
+							<td style="border-style:none;padding-top:10px;">
+								<p style="font-size: 14px;line-height: 1.6;">কর্মী/কর্মকর্তার নাম: {{$all_result->emp_name_eng}}, 
+								আইডি নং- {{getBanglaDate($all_result->emp_id)}}, পদবী: {{$all_result->designation_name}}, 
+								ব্রাঞ্চের নাম: {{$all_result->branch_name}}, সংস্থায় যোগদানের তারিখ:{{date('d-m-Y',strtotime($all_result->org_join_date))}}, 
+								স্থায়ীকরণের তারিখ:{{date('d-m-Y',strtotime($permanent_date))}},
+								 অব্যহতির তারিখ:{{date('d-m-Y',strtotime($all_result->re_effect_date))}}, {{$all_result->br_name_bangla}} 
+								এর গ্র্যাচুইটি তহবিলের হিসাব নিম্নরূপ : <br/> ( নীতিমালার ২১.৪ অনুচ্ছেদ অনুসারে )
+								</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<form class="form-horizontal" action="{{URL::to('/final-payment-gra')}}" method="post">
+				{{ csrf_field() }}
+				<div class="table-responsive">
+					<table class="table table-bordered table-striped">
+						<thead>
+							<tr>
+								<th>ক) &nbsp;&nbsp;কর্মীর পাওনা :</th>
+								<th><center>টাকা</center></th>
+								<th>খ) &nbsp;&nbsp;কর্মীর দেনা ও অ-প্রাপ্য অংশ :</th>
+								<th><center>টাকা</center></th>
+							<tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><b>চাকুরীর মেয়াদ কাল : {{$service_length}} </b></td>
+								<td><center>-</center></td>
+								<td><?php 
+										
+									?>
+								</td>
+								<td><center>-</center></td>
+							</tr>
+							<tr>
+								<td>{{$year . ' Years'}} ( {{$salary->salary_basic.'*'.$gratuity->point.'*'.$year}} )</td>
+								<td><input type="text" name="year_amt" value="{{$gra_amt_year}}" class="form-control" size="2"></td>
+								<td>গ্র্যাচুইটি ঋণের কিস্তি</td>
+								<td><input type="text" name="gratuity_loan" value="<?php echo empty($grl_loan_amt->total_grl_amt) ? '' : round($grl_loan_amt->total_grl_amt);?>" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>{{$month . ' Months'}} ( {{$salary->salary_basic.'*'.$gratuity->point.'*'.$month}} )/12</td>
+								<td><input type="text" name="month_amt" value="{{round($gra_amt_month)}}" class="form-control" size="2"></td>
+								<td>সিদীপের প্রাপ্য (কর্মীর দেনা)</td>
+								<td><input type="text" name="org_deserve_own" value="" class="form-control" size="2"></td>
+							</tr>
+							<tr>
+								<td>সর্ব-মোট গ্র্যাচুইটি</td>
+								<td><input type="text" name="total_pay" value="{{round($gra_amt_year+$gra_amt_month)}}" class="form-control" size="2"></td>
+								<td>সর্ব-মোট দেনা</td>
+								<td><input type="text" name="total_due" value="" class="form-control" size="2"></td>
+							</tr>
+						</tbody>	
+					</table>
+					<button type="submit" class="btn btn-primary pull-right" >Save</button>
+					<p>কর্মীর গ্র্যাচুইটি তহবিলের <b>পাওনা</b> বাবদ = /- () টাকার হিসাবটি উপস্থাপন করা হল।</p>
+					<p style="padding-top:50px;">প্রস্তুতকারক</p>
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>	
+	@endif
+	@endif
+</section>
+<script type="text/javascript"><!--
+$(document).ready(function() {
+	$('#form_date').datepicker({dateFormat: 'yy-mm-dd'});
+	document.getElementById("payment_type").value="{{$payment_type}}";
+});
+//--></script>
+<script language="javascript" type="text/javascript">
+    function printDiv(divID) {
+		var divToPrint = document.getElementById(divID);
+			//document.getElementById('note').style.display = 'block';
+		var htmlToPrint = '' +
+			'<style type="text/css">' + '.table-striped p {' +
+			'font: 12px "Trebuchet MS","Lucida Grande",Verdana,sans-serif;' + 
+			'}' + '.table-bordered th {' +
+			'border:1px solid #757070;padding:4px;font: 14px "Trebuchet MS","Lucida Grande",Verdana,sans-serif;' + 
+			'}' + '.table-bordered td {' +
+			'border:1px solid #757070;padding:4px;font: 14px "Trebuchet MS","Lucida Grande",Verdana,sans-serif;' + 
+			'}' + 'table {' +
+			'border-collapse: collapse;' +
+			'width:100%;' +
+			'}' + 'body {' +
+			'margin-left: 10px;' +
+			'}' +  
+			'</style>';
+		htmlToPrint += divToPrint.outerHTML;
+		newWin = window.open("");
+		newWin.document.write(htmlToPrint);
+		newWin.print();
+		newWin.close();
+		location.reload();
+    }
+</script>
+<script>
+//To active  menu.......//
+	$(document).ready(function() {
+		$("#MainGroupSalary_Info").addClass('active');
+		$("#Final_Payment").addClass('active');
+	});
+</script>
+@endsection

@@ -1,0 +1,83 @@
+<?php $__env->startSection('title', 'Manage User Role'); ?>
+<?php $__env->startSection('main_content'); ?>
+
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>Form Elements<small>Preview</small></h1>
+		<ol class="breadcrumb">
+			<li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+			<li><a href="#">Forms</a></li>
+			<li class="active">Advanced Elements</li>
+		</ol>
+	</section>
+
+	<!-- Main content -->
+
+	<section class="content">
+ 
+		<div class="box box-info">
+			<div class="box-header with-border">
+				<h3 class="box-title"> <?php echo e($Heading); ?></h3>
+			</div>
+			<!-- /.box-header -->
+			<!-- form start -->
+				
+
+			
+			<form class="form-horizontal" action="<?php echo e(URL::to($action)); ?>" method="<?php echo e($method); ?>">
+               
+				<?php echo e(csrf_field()); ?>
+
+				<?php echo $method_control; ?>
+
+				
+				<input type="hidden" class="form-control" value="" name="id" id="id">
+				
+				<div class="box-body">
+					<div class="form-group">
+						<label for="admin_role_name" class="col-sm-2 control-label">Role Name</label>
+						<div class="col-sm-4">
+							<input type="text" class="form-control" id="admin_role_name" name="admin_role_name" value="<?php echo e($admin_role_name); ?>" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="role_description" class="col-sm-2 control-label">Description</label>
+						<div class="col-sm-4">
+							<textarea class="form-control" id="role_description" name="role_description" required><?php echo e($role_description); ?></textarea>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label for="role_status" class="col-sm-2 control-label">Status</label>
+						<div class="col-sm-4">
+							<select name="role_status" id="role_status" class="form-control" required>							
+								<option value="0">No</option>
+								<option value="1">Yes</option>
+							</select>
+						</div>
+					</div>					
+				</div>
+				<!-- /.box-body -->
+				<div class="box-footer">
+					<button type="reset" class="btn btn-default">Cancel</button>
+					<button type="submit" class="btn btn-info"><?php echo e($button_text); ?></button>
+				</div>
+				<!-- /.box-footer -->
+			</form>
+			
+
+		</div>
+	</section>
+	
+	<script>
+		document.getElementById("role_status").value = '<?php echo e($role_status); ?>';
+	</script>
+	<script>
+	//To active  menu.......//
+		$(document).ready(function() {
+			$("#MainGroupConfig").addClass('active');
+			$("#Manage_User_Role").addClass('active');
+		});
+	</script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.admin_master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

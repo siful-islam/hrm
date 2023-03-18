@@ -1,0 +1,376 @@
+
+<?php $__env->startSection('main_content'); ?>
+<style>
+.required {
+    color: red;
+    font-size: 20px;
+}
+</style>
+ <?php
+ function taka_format($amount = 0)
+	{
+		$tmp = explode('.',$amount);  // for float or double values
+		$strMoney = '';
+		$amount = $tmp[0];
+		$strMoney .= substr($amount, -3,3 );
+		$amount = substr($amount, 0,-3 );
+		 while(strlen($amount)>0)
+		{
+			$strMoney = substr($amount, -2,2 ).','.$strMoney;
+			$amount = substr($amount, 0,-2 );
+		} 
+
+		if(isset($tmp[1]))         // if float and double add the decimal digits here.
+		{
+		return $strMoney.'.'.$tmp[1];
+		}
+		return $strMoney;
+	}
+
+	function bn2enNumber ($number){
+		$replace_array= array("১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯", "০",",");
+		$search_array= array("1", "2", "3", "4", "5", "6", "7", "8", "9","0",",");
+		$en_number = str_replace($search_array, $replace_array, $number);
+		return $en_number;
+	} 
+ ?>
+ 
+	<!-- Content Header (Page header) -->
+	<section class="content-header">
+		<h1>Employee <small>View Records</small></h1>
+	</section>
+	<!-- Main content -->
+	<section class="content">
+		<div class="box box-info">
+			<div class="box-header with-border">
+				<!--<h3 class="box-title"> <?php echo e($Heading); ?></h3>-->
+				<form class="form-horizontal" action="<?php echo e(URL::to('salary_certicate_emo_info')); ?>" method="post">
+                <?php echo e(csrf_field()); ?>	
+					<div class="form-group">
+						<div class="col-sm-1">	
+							Employee ID :
+						</div>
+						<div class="col-sm-2">	
+							<input type="number" class="form-control" name="emp_id" value="<?php echo e($emp_id); ?>" required>
+						</div>
+						<div class="col-sm-3">
+							<button type="submit" name="submit" class="btn btn-danger"><i class="fa fa-search-plus" aria-hidden="true"></i> Search   </button>
+						</div>
+					</div>
+				</form>
+			</div>
+			<!-- /.box-header -->
+		</div>	
+		
+			<div class="col-md-12">
+			
+				<div class="box box-solid">
+				<?php if($is_access == 1){
+				if(!empty($all_report) > 0) {
+				 
+				 ?>	
+					<div class="box-header with-border">
+						<div class="pull-right"> <button type="button"  onclick="javascript:printDiv('printme')"><i class="fa fa-print" aria-hidden="true"></i> Print</a></button> 
+						</div>
+					</div>
+					<!-- /.box-header -->
+					<div id="printme" > 
+					  <div class="box-body" style="margin:0;padding:0;">
+						 <div class="box-header with-border">
+							<center style="text-align:justfy;text-justify: inter-word;" > 
+								<span class="box-title" style="text-align:left;" >
+								<img src="<?php echo e(asset(Session::get('org_logo'))); ?>" style="float:left;margin-top:0%;" width="78" >
+								</span> 
+								<span class="box-title" style="text-align:justify; text-justify: inter-word;" >
+									<span style="font-size:20px;"> সেন্টার ফর ডেভেলপমেন্ট     ইনোভেশন এন্ড প্র্যাকটিসেস ( সিদীপ )  <br></span><span  style="font-size:24px;">Centre for Development Innovation and Practices(CDIP)</span><br>
+									<span style="font-size:12px;">সিদীপ ভবন, হাউজ # ১৭, রোড # ১৩, পিসিকালচার হাউজিং সোসাইটি, সেখেরটেক, আদাবর, ঢাকা - ১২০৭</span><br>
+									<span style="font-size:14px;font-weight:bold; color:#800000; ">web:www.cdipbd.org, Email:info@cdipbd.org, Phone:02-48118633,02-48118634</span>
+								</span>  
+							</center>
+							<hr> 
+								<p style="text-align:center;">CERTIFICATE OF PAYMENT OF SALARY, DEDUCTION OF INCOME TAX AT SOURCE AND DEPOSIT OF SUCH TAX WITH THE GOVERNMENT OF BANGLADESH</p>
+								<table style="width:100%;" id="emp_info">
+									<tr>
+										<td style="width:25%;">Employee ID</td> 
+										<td style="width:75%;">:&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $all_report['emp_id'];?></td>
+									</tr>							
+									<tr>
+										<td style="width:25%;">Name of Recipient</td> 
+										<td style="width:75%;">:&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $all_report['emp_name'];?></td>
+									</tr>						
+									<tr>						
+										<td style="width:25%;">Designation</td> 
+										<td style="width:75%;">:&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $all_report['designation_name'];?></td>
+									</tr>
+									<tr>
+										<td style="width:25%;">Assesment Year</td> 
+										<td style="width:75%;">:&nbsp;&nbsp;&nbsp;&nbsp;<?php echo date("Y",strtotime($all_report['f_year_from']." + 1 year")).' to '.date("Y",strtotime($all_report['f_year_to']." + 1 year"));  ?> </td>
+									</tr>	
+									<tr>	 
+										<td style="width:25%;">Income Period</td> 
+										<td style="width:75%;">:&nbsp;&nbsp;&nbsp;&nbsp;<?php echo date("d F ,Y",strtotime($all_report['f_year_from'])).' to '.date("d F, Y",strtotime($all_report['f_year_to']));  ?> </td>
+									</tr>	
+									<tr>	
+										<td style="width:25%;">Twelve Digit e-TIN</td> 
+										<td style="width:75%;">:&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $all_report['tin_number'].', Tax Circle '.$all_report['tax_circle'].', ' .$all_report['tax_zone'];?> </td>
+									</tr>	
+									<tr>	
+										<td style="width:25%;">Work Station</td> 
+										<td style="width:75%;">:&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $all_report['branch_name'];?></td>
+														
+									</tr>
+								</table>
+								Certified that the above named person, who was employed by our <?php if($all_report['branch_code'] == 9999){ ?> Head office<?php }else{ ?>  Branch office<?php } ?> , was paid by us a gross salary of taka = <span  id = "tot_benefit"></span> /- during the stated period as follows.
+								<table class="table table-bordered table-responsive table-striped"  style="width:100%;padding-bottom:0">
+								<?php $tot_amount = 0; $tot_amount_non = 0; $i = 1;  ?>
+									<tr>
+										<td>SN.</td>
+										<td>Salary structure is as follows</td>
+										<td style="text-align:right;">Amount ( Taka )</td>
+									</tr>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Basic Salary</td>
+										<td style="text-align:right;"> <?php $tot_amount =  $all_report['tot_basic']; echo taka_format($all_report['tot_basic']);?></td>
+									</tr>
+									<?php  if($all_report['house_rent'] > 0){  ?>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>House Rent </td>
+										<td style="text-align:right;"> <?php $tot_amount += $all_report['house_rent']; echo taka_format($all_report['house_rent']); ?></td>
+									</tr>
+									<?php  } if($all_report['medi_allow'] > 0){  ?> 
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Medical Allowance </td>
+										<td style="text-align:right;"> <?php $tot_amount += $all_report['medi_allow']; echo taka_format($all_report['medi_allow']); ?></td>
+									</tr>
+									<?php   } if($all_report['convey_allow'] > 0){   ?>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Conveyance Allowance </td>
+										<td style="text-align:right;"> <?php $tot_amount += $all_report['convey_allow']; echo taka_format($all_report['convey_allow']); ?></td>
+									</tr>
+									<?php } if($all_report['field_allow'] > 0){    ?>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Field Allowance </td>
+										<td style="text-align:right;"> <?php   $tot_amount += $all_report['field_allow']; echo taka_format($all_report['field_allow']); ?></td>
+									</tr>
+									<?php    }if($all_report['charge_allow'] > 0){   ?>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Charge Allowance </td>
+										<td style="text-align:right;"> <?php $tot_amount += $all_report['charge_allow']; echo taka_format($all_report['charge_allow']); ?></td>
+									</tr> 
+									<?php } if($all_report['festival_allow'] > 0){  ?>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Festival Allowance</td>
+										<td style="text-align:right;"> <?php $tot_amount += $all_report['festival_allow']; echo taka_format($all_report['festival_allow']); ?></td>
+									</tr>
+									<?php } if($all_report['boisaki_allow'] > 0){ ?>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Boisaki Allowance </td>
+										<td style="text-align:right;"> <?php $tot_amount += $all_report['boisaki_allow']; echo taka_format($all_report['boisaki_allow']); ?></td>
+									</tr>
+									<?php    } if($all_report['mobile_allow'] > 0){ ?> 
+									 
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Mobile Allowance </td>
+										<td style="text-align:right;"> <?php $tot_amount += $all_report['mobile_allow']; echo taka_format($all_report['mobile_allow']); ?></td>
+									</tr> 
+									<?php } if($all_report['car_main_allow'] > 0){ ?> 
+									 
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Car Maintenance Allowance</td>
+										<td style="text-align:right;"> <?php $tot_amount += $all_report['car_main_allow']; echo taka_format($all_report['car_main_allow']); ?></td>
+									</tr> 
+									<?php  } if($all_report['office_maintenance'] > 0){ ?> 
+									 
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Office Maintenance Allowance</td>
+										<td style="text-align:right;"> <?php $tot_amount += $all_report['office_maintenance']; echo taka_format($all_report['office_maintenance']); ?></td>
+									</tr> 
+									<?php } ?>
+									<tr>
+										<td colspan="2" style="text-align:center;"><b>Cash Benefits</b></td> 
+										<td style="text-align:right;"> <b><?php echo taka_format($tot_amount); ?> </b></td>
+									</tr>
+									<?php  if($all_report['car_allow'] > 0){ ?>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Car Allowance </td>
+										<td style="text-align:right;"> <?php $tot_amount_non += $all_report['car_allow']; echo taka_format($all_report['car_allow']); ?></td>
+									</tr>
+									<?php  }if($all_report['provident_fund'] > 0){ ?>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Employer's contribution to a Recognized Provident Fund </td>
+										<td style="text-align:right;"><?php $tot_amount_non += $all_report['provident_fund'];echo taka_format($all_report['provident_fund']); ?></td>
+									</tr>
+									<?php } ?>
+									<tr>
+										<td style="text-align:center;"><?php echo  $i++; ?></td>
+										<td>Interest Accrued on Recognized Provident Fund</td>
+										<td style="text-align:right;"><?php  $tot_amount_non += $all_report['pf_interest']; echo taka_format($all_report['pf_interest']);  ?></td>
+									</tr>
+									 <tr>
+										<td colspan="2" style="text-align:center;"><b>Non-Cash Benefits</b></td> 
+										<td style="text-align:right;"><b> <?php $tot_amount += $tot_amount_non; echo taka_format($tot_amount_non); ?> </b></td>
+									</tr>
+									<tr>
+										<td colspan="2" style="text-align:center;"><b>Total Benefits</b></td> 
+										<td style="text-align:right;"><b> <?php echo taka_format($tot_amount); ?></b>
+
+											<script>
+														document.getElementById("tot_benefit").innerHTML = '<?php echo taka_format($tot_amount);?>';
+											</script>
+										</td>
+									</tr>
+								</table>   
+								<div class="scrollme" style="width:100%;">
+										During the same period Taka = <span id= "tot_tax"></span> /- was deducted at source as income tax such gross salary and was deposited by us with the government through the following challans:
+										</br>
+										 <table  class="table table-bordered table-responsive table-striped" style="width:100%;"   cellspacing="0" >
+											<thead>
+											<tr> 
+												<td  align="center">SN.</td>
+												<td> Month</td> 
+												<td> Challan Date</td> 
+												<td  align="center" >Bank & Branch Name  </td> 
+												<td  align="center" >Challan No</td> 
+												<td  align="right" >Tax Amount</td> 
+											</tr> 
+											</thead>
+											<tbody>
+											<?php if(!empty($challan_info)): ?>
+												<?php $j=1;
+													$total_pay_amount = 0;
+												
+												foreach($challan_info as $v_info){
+													 
+												?>
+													<tr id="d_id<?php echo $j?>"> 
+														<td  align="center"><?php echo e($j); ?></td>
+														<td  ><?php echo e($v_info->month); ?></td>  
+														<td><?php echo e(date("d F ,  Y",strtotime($v_info->challan_date))); ?></td> 
+														<td  align="center"><?php echo e($v_info->bank_branch); ?></td> 
+														 <td  align="center"><?php echo e($v_info->challan_no); ?></td>  
+														 
+														 <td  align="right">
+														 <?php
+													foreach($salary_field as $salary_field_k => $v_salary_field ){
+														if($v_info->month_sort == $salary_field_k){
+															if($v_salary_field > 0){
+																echo  taka_format($v_salary_field);
+																$total_pay_amount +=  $v_salary_field;
+															}else{ ?>
+																 <script>
+																	document.getElementById("d_id<?php echo $j?>").style.display = 'none';
+																	 
+																 </script>
+														<?php	}
+															
+														}
+													}
+													?>  
+														 </td>   
+													</tr>  
+												<?php  $j++;} ?>
+													<tr> 
+														<td colspan="5" align="center">Total Taka</td> 
+														 <td  align="right"><?php echo e(taka_format($total_pay_amount)); ?>
+
+														 <script>
+														document.getElementById("tot_tax").innerHTML = '<?php echo taka_format($total_pay_amount);?>';
+														 </script>
+														 </td>   
+													</tr>
+											<?php endif; ?>
+											</tbody>
+										 </table> 
+											<table width="100%">
+												<tr>
+													<td style="border: 0px solid white !important; text-align:right !important;"> 
+														
+													</td>
+													<td style="border: 0px solid white !important; text-align:right !important;"> 
+														for Centre for Development Innovation and Practices (CDIP) 
+														Head Office, Dhaka
+													</td>
+												</tr>
+											</table>
+											<br>
+											<br>
+											<table width="100%">
+												<tr>
+													<td style="border: 0px solid white !important;"> Dated, <?php echo date("j\<\s\u\p\>S\<\/\s\u\p\> F, Y",strtotime(date("Y-m-d")));?></td>
+													<td style="border: 0px solid white !important;text-align:right !important;"> Authorized Signature </td>
+												</tr>
+											</table> 
+											<table width="100%" style="margin:0px;padding:0px;" >
+												<tr>
+													<td style="border: 0px solid white !important;text-align:center !important;padding-top:0px !important;">This is Computer Generated Salary Statement reqiured no Signature</td>
+												</tr>
+											</table>
+
+										
+										</div> 
+																			 
+										
+									</div>
+									
+							</div>	
+					
+					</div>
+				</div>
+					<!-- /.box-body -->
+				<?php } }else{
+			  echo "<p style='color:red;text-align:center;'>Access is Denied</p>";
+				
+		} ?>
+				
+				</div>
+				<!-- /.box -->
+			
+			</div>
+			 
+		
+	</section>
+	 <script language="javascript" type="text/javascript"> 
+ function printDiv(divID) {
+    var divToPrint = document.getElementById(divID);
+    var htmlToPrint = '' +
+        '<style type="text/css">'+'.no-border th, .no-border td {' +
+        'border:none;' + 
+        '}' + '.table-bordered th, .table-bordered td {' +
+        'border:1px solid #000 !important;' + 'font-size:13px !important;' + 
+        '}'+ '.custom th, .custom td {' 
+         + 'font-size:11px !important;' + 
+        '}' + 'table {' +
+        'border-collapse: collapse;' + 
+        '}' + '.box-body {' +
+        '-webkit-print-color-adjust: exact;' +
+        'color-adjust: exact;'+ 'width:100%;margin:auto;'+
+        '}' + '#footer{' + 
+        'float: left;padding-left:17%;'+ 
+        '}' + '#emp_info{' + 
+        'padding-bottom:5px;'+ 
+        '}' +
+        '</style>';
+    htmlToPrint += divToPrint.outerHTML;
+    newWin = window.open("");
+    newWin.document.write(htmlToPrint);
+    newWin.print();
+    newWin.close(); 
+//}
+    } 
+	 
+</script> 
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.admin_master', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

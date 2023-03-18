@@ -1,0 +1,25 @@
+
+punishment_type
+Warning --1
+Fine --2
+Explanation --5
+Censure --4
+Strong Warning --3
+
+
+designationy
+Branch Manager --24
+Sr Branch Manager -- 24
+Jr Branch Manager --24
+Acting Jr Branch Manager -- 24
+Director (Program) --38
+Area Manager --122
+Zonal Manager -- 209
+Manager (Cr.Program) ---111
+Field Officer --11
+
+
+
+
+
+
